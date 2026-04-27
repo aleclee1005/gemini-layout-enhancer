@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "Gemini Layout Enhancer",
+  "version": "1.0.0",
+  "description": "为 Google Gemini 提供宽屏模式和左右分割视图两大增强功能",
+  "content_scripts": [
+    {
+      "matches": ["https://gemini.google.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
