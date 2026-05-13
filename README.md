@@ -1,6 +1,6 @@
 # Gemini Layout Enhancer
 
-A Chrome extension that adds four layout enhancement buttons to [Google Gemini](https://gemini.google.com), unlocking widescreen mode, split view, focus mode, and Markdown export.
+A browser extension (Chrome, Edge, Firefox) that adds four layout enhancement buttons to [Google Gemini](https://gemini.google.com), unlocking widescreen mode, split view, focus mode, and Markdown export.
 
 ---
 
@@ -17,14 +17,14 @@ A Chrome extension that adds four layout enhancement buttons to [Google Gemini](
 
 ## Installation
 
-> The extension is not yet on the Chrome Web Store. Install it manually as an unpacked extension.
+Install from your browser's extension store, or load manually:
 
 1. Clone or download this repository
    ```bash
-   git clone https://github.com/YOUR_USERNAME/gemini-layout-enhancer.git
+   git clone https://github.com/aleclee1005/gemini-layout-enhancer.git
    ```
 
-2. Open Chrome and navigate to `chrome://extensions/`
+2. Open Chrome/Edge and navigate to `chrome://extensions/` (or `edge://extensions/`)
 
 3. Enable **Developer mode** (toggle in the top-right corner)
 
@@ -67,7 +67,7 @@ The result is written directly to the clipboard via `navigator.clipboard.writeTe
 
 ```
 gemini-layout-enhancer/
-├── manifest.json   # Chrome Extension Manifest V3
+├── manifest.json   # Browser Extension Manifest V3
 └── content.js      # All extension logic (single IIFE, no dependencies)
 ```
 
@@ -75,7 +75,7 @@ gemini-layout-enhancer/
 
 ## Compatibility
 
-- **Chrome** 109+ (Manifest V3)
+- **Chrome** 109+, **Edge** 109+, **Firefox** 109+ (Manifest V3)
 - **Google Gemini** — tested on `gemini.google.com` as of 2025. Gemini's DOM structure may change; open an issue if something breaks.
 
 ---
