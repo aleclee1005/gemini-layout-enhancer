@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Gemini Layout Enhancer",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Enhance Google Gemini with widescreen mode, split view, focus mode, and Markdown export",
   "homepage_url": "https://github.com/aleclee1005/geminienhancer",
   "action": {
