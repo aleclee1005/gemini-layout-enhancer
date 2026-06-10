@@ -10,6 +10,7 @@
     originalMessages: null,
     cloneEl: null,
     extractedInput: null,
+    fullscreenHandler: null,
   };
 
   /* ─── BOOT ─────────────────────────────────────────────────── */
@@ -109,10 +110,10 @@
     const wrap = document.createElement('div');
     wrap.id = 'gem-ext-btns';
 
-    const expandBtn = makeBtn('gem-btn-expand', svgExpand(), '宽屏模式',      onExpand);
-    const splitBtn  = makeBtn('gem-btn-split',  svgSplit(),  '分割视图',      onSplit);
-    const focusBtn  = makeBtn('gem-btn-focus',  svgFocus(),  '聚焦模式',      onFocus);
-    const exportBtn = makeBtn('gem-btn-export', svgExport(), '导出 Markdown',  onExport);
+    const expandBtn = makeBtn('gem-btn-expand', svgExpand(), 'Widescreen',      onExpand);
+    const splitBtn  = makeBtn('gem-btn-split',  svgSplit(),  'Split View',      onSplit);
+    const focusBtn  = makeBtn('gem-btn-focus',  svgFocus(),  'Focus Mode',      onFocus);
+    const exportBtn = makeBtn('gem-btn-export', svgExport(), 'Export Markdown', onExport);
 
     wrap.append(expandBtn, splitBtn, focusBtn, exportBtn);
 
@@ -462,7 +463,7 @@
 
     if (isHomePage) {
       splitBtn.classList.add('gem-disabled');
-      splitBtn.title = '分割视图（请先开始对话）';
+      splitBtn.title = 'Split View (start a conversation first)';
       if (state.split) {
         state.split = false;
         splitBtn.classList.remove('active');
@@ -470,7 +471,7 @@
       }
     } else {
       splitBtn.classList.remove('gem-disabled');
-      splitBtn.title = '分割视图';
+      splitBtn.title = 'Split View';
     }
   }
 
@@ -643,7 +644,16 @@
     removeStyle('gem-focus-css');
     document.getElementById('gem-focus-exit')?.remove();
 
-    if (!state.focused) return;
+    // Always clean up fullscreen listener first
+    if (state.fullscreenHandler) {
+      document.removeEventListener('fullscreenchange', state.fullscreenHandler);
+      state.fullscreenHandler = null;
+    }
+
+    if (!state.focused) {
+      if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+      return;
+    }
 
     injectStyle('gem-focus-css', `
       /* Hide sidebar */
@@ -677,7 +687,7 @@
     // Floating exit button
     const exit = document.createElement('button');
     exit.id = 'gem-focus-exit';
-    exit.title = '退出聚焦模式 (Esc)';
+    exit.title = 'Exit Focus Mode (Esc)';
     exit.textContent = '✕';
     exit.style.cssText = [
       'position:fixed', 'top:10px', 'right:12px', 'z-index:2147483647',
@@ -695,14 +705,18 @@
     });
     document.body.appendChild(exit);
 
-    // Esc key to exit
-    const onKey = (e) => {
-      if (e.key === 'Escape' && state.focused) {
-        exit.click();
-        document.removeEventListener('keydown', onKey);
+    // Enter fullscreen
+    document.documentElement.requestFullscreen().catch(() => {});
+
+    // When fullscreen exits externally (Esc / green button / F11), sync focus state
+    state.fullscreenHandler = () => {
+      if (!document.fullscreenElement && state.focused) {
+        state.focused = false;
+        document.getElementById('gem-btn-focus')?.classList.remove('active');
+        applyFocus();
       }
     };
-    document.addEventListener('keydown', onKey);
+    document.addEventListener('fullscreenchange', state.fullscreenHandler);
   }
 
   /* ─── EXPORT MARKDOWN ───────────────────────────────────────── */
@@ -710,11 +724,11 @@
   function onExport() {
     const chatWin = findChatWindow();
     const msgRoot = state.originalMessages || findMessagesContainer(chatWin);
-    if (!msgRoot) { showToast('找不到对话内容'); return; }
+    if (!msgRoot) { showToast('Conversation not found'); return; }
 
     const lines = [];
-    const title = document.title || 'Gemini 对话';
-    lines.push(`# ${title}`, `> 导出时间：${new Date().toLocaleString('zh-CN')}`, '');
+    const title = document.title || 'Gemini Chat';
+    lines.push(`# ${title}`, `> Exported at: ${new Date().toLocaleString('en-US')}`, '');
 
     // Walk messages in DOM order
     const nodes = msgRoot.querySelectorAll(
@@ -737,12 +751,12 @@
       }
     }
 
-    if (lines.length <= 3) { showToast('没有找到对话内容'); return; }
+    if (lines.length <= 3) { showToast('No conversation content found'); return; }
 
     const md = lines.join('\n');
     navigator.clipboard.writeText(md)
-      .then(() => showToast('✓ Markdown 已复制到剪贴板'))
-      .catch(() => showToast('复制失败，请检查剪贴板权限'));
+      .then(() => showToast('✓ Markdown copied to clipboard'))
+      .catch(() => showToast('Copy failed — check clipboard permissions'));
   }
 
   function nodeToMd(node) {
